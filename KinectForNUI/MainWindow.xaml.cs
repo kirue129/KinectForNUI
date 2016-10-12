@@ -1,11 +1,7 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Wpf.Controls;
-using Microsoft.Kinect.Toolkit.Input;
-using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace KinectForNUI
 {
