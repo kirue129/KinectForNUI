@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
+using Microsoft.Kinect;
+using Microsoft.Kinect.Wpf.Controls;
+using Microsoft.Kinect.Toolkit.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace KinectForNUI
@@ -24,5 +18,36 @@ namespace KinectForNUI
         {
             InitializeComponent();
         }
+        void InitializeKinectControls()
+        {
+            KinectRegion.SetKinectRegion(this, kinectRegion);
+            this.kinectRegion.KinectSensor = KinectSensor.GetDefault();
+            this.kinectRegion.KinectSensor.Open();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            InitializeKinectControls();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            button.Content = "Pressed!";
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (kinectRegion != null)
+            {
+                if (kinectRegion.KinectSensor != null)
+                {
+                    kinectRegion.KinectSensor.Close();
+                    kinectRegion.KinectSensor = null;
+                }
+                kinectRegion = null;
+            }
+        }
+
     }
 }
