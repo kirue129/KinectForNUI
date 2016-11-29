@@ -16,15 +16,19 @@ namespace KinectForNUI
     public partial class MainWindow : Window
     {
 
+        // kinect
         KinectSensor kinect;
+
         // Color
         ColorFrameReader colorFrameReader;
         FrameDescription colorFrameDesc;
         ColorImageFormat colorFormat = ColorImageFormat.Bgra;
+        
         // Body
         int BODY_COUNT;
         BodyFrameReader bodyFrameReader;
         Body[] bodies;
+        
         // Gesture
         VisualGestureBuilderFrameReader[] gestureFrameReaders;
         IReadOnlyList<Gesture> gestures;
@@ -40,19 +44,21 @@ namespace KinectForNUI
             InitializeComponent();
         }
 
+        // window起動処理
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
 
             try
             {
 
+                // kinectを開く
                 kinect = KinectSensor.GetDefault();
                 if (kinect == null)
                 {
                     throw new Exception("Kinectを開けません");
                 }
-
                 kinect.Open();
+
                 // カラー画像の情報を作成する(BGRAフォーマット)
                 colorFrameDesc = kinect.ColorFrameSource.CreateFrameDescription(
                                                         colorFormat);
@@ -142,7 +148,7 @@ namespace KinectForNUI
             }
 
             VisualGestureBuilderDatabase gestureDatabase;
-            gestureDatabase = new VisualGestureBuilderDatabase("SampleDatabase.gbd");
+            gestureDatabase = new VisualGestureBuilderDatabase("HandUp.gbd");
 
             uint gestureCount;
             gestureCount = gestureDatabase.AvailableGesturesCount;
@@ -177,14 +183,14 @@ namespace KinectForNUI
         {
             bool tracked;
             tracked = gestureFrame.IsTrackingIdValid;
-            if (!tracked)
+            if (tracked)
             {
-                return;
+                foreach (var g in gestures)
+                {
+                    result(gestureFrame, g);
+                }
             }
-            foreach (var g in gestures)
-            {
-                result(gestureFrame, g);
-            }
+            
         }
 
         void result(VisualGestureBuilderFrame gestureFrame, Gesture gesture)
@@ -194,6 +200,7 @@ namespace KinectForNUI
             gestureType = gesture.GestureType;
             switch (gestureType)
             {
+
                 case GestureType.Discrete:
                     DiscreteGestureResult dGestureResult;
                     dGestureResult = gestureFrame.DiscreteGestureResults[gesture];
@@ -275,31 +282,35 @@ namespace KinectForNUI
 
         void UpdateBodyFrame()
         {
-            if (bodyFrameReader == null)
+            
+            if (bodyFrameReader != null)
             {
-                return;
-            }
-            BodyFrame bodyFrame;
-            bodyFrame = bodyFrameReader.AcquireLatestFrame();
-            if (bodyFrame == null)
-            {
-                return;
-            }
-            bodyFrame.GetAndRefreshBodyData(bodies);
-            for (int count = 0; count < BODY_COUNT; count++)
-            {
-                Body body = bodies[count];
-                bool tracked = body.IsTracked;
-                if (!tracked)
+
+                // BodyFrameの取得
+                BodyFrame bodyFrame;
+                bodyFrame = bodyFrameReader.AcquireLatestFrame();
+
+                if (bodyFrame != null)
                 {
-                    continue;
+                    bodyFrame.GetAndRefreshBodyData(bodies);
+                    for (int count = 0; count < BODY_COUNT; count++)
+                    {
+                        Body body = bodies[count];
+                        bool tracked = body.IsTracked;
+                        if (!tracked)
+                        {
+                            continue;
+                        }
+                        ulong trackingId = body.TrackingId;
+                        VisualGestureBuilderFrameSource gestureFrameSource;
+                        gestureFrameSource = gestureFrameReaders[count].VisualGestureBuilderFrameSource;
+                        gestureFrameSource.TrackingId = trackingId;
+                    }
+                    bodyFrame.Dispose();
                 }
-                ulong trackingId = body.TrackingId;
-                VisualGestureBuilderFrameSource gestureFrameSource;
-                gestureFrameSource = gestureFrameReaders[count].VisualGestureBuilderFrameSource;
-                gestureFrameSource.TrackingId = trackingId;
+                                
             }
-            bodyFrame.Dispose();
+                        
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

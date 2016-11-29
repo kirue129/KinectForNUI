@@ -13,6 +13,9 @@
             <TextBlock Name="TextBlock5" Foreground="Orange" FontSize="20" />
             <TextBlock Name="TextBlock6" Foreground="Violet" FontSize="20" />
         </StackPanel>
+        <Grid Width="512" Height="424">
+            <Canvas x:Name="CanvasBody" Width="512" Height="424"/>
+        </Grid>
 
     </Grid>
 </Window>
