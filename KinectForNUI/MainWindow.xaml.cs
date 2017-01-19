@@ -91,6 +91,7 @@ namespace KinectForNUI
 
             }
 
+            // エラー表示
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
@@ -98,13 +99,14 @@ namespace KinectForNUI
             }
 
         }
-
+ 
         void colorFrameReader_FrameArrived(object sender, ColorFrameArrivedEventArgs e)
         {
             UpdateColorFrame(e);
             DrawColorFrame();
         }
 
+        // カラーフレームの更新
         void UpdateColorFrame(ColorFrameArrivedEventArgs e)
         {
             // カラーフレームを取得する
@@ -121,11 +123,11 @@ namespace KinectForNUI
             }
         }
 
+        // 画面に描画
         private void DrawColorFrame()
         {
             // ビットマップにする
-            colorBitmap.WritePixels(colorRect, colorBuffer,
-                                            colorStride, 0);
+            colorBitmap.WritePixels(colorRect, colorBuffer, colorStride, 0);
         }
 
         void bodyFrameReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
@@ -133,6 +135,7 @@ namespace KinectForNUI
             UpdateBodyFrame();
         }
 
+        // ジェスチャーの初期化
         void InitializeGesture()
         {
 
@@ -148,7 +151,8 @@ namespace KinectForNUI
             }
 
             VisualGestureBuilderDatabase gestureDatabase;
-            gestureDatabase = new VisualGestureBuilderDatabase("HandUp.gbd");
+            //gestureDatabase = new VisualGestureBuilderDatabase("SampleDatabase.gbd");
+            gestureDatabase = new VisualGestureBuilderDatabase("NUITest.gbd");
 
             uint gestureCount;
             gestureCount = gestureDatabase.AvailableGesturesCount;
