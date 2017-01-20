@@ -1,8 +1,10 @@
 ﻿<Window x:Class="KinectForNUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Kinect for Windows SDK v2" SizeToContent="WidthAndHeight"
-        Loaded="Window_Loaded" Closing="Window_Closing">
+        Title="Kinect for Windows SDK v2" 
+        SizeToContent="WidthAndHeight"
+        Loaded="Window_Loaded" 
+        Closing="Window_Closing">
     <Grid>
         <Image Width="960" Height="540" Name="ImageColor" />
         <StackPanel Width="960" Height="540">
