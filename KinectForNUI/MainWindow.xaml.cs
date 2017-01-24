@@ -62,20 +62,16 @@ namespace KinectForNUI
                 kinect.Open();
 
                 // カラー画像の情報を作成する(BGRAフォーマット)
-                colorFrameDesc = kinect.ColorFrameSource.CreateFrameDescription(
-                                                        colorFormat);
+                colorFrameDesc = kinect.ColorFrameSource.CreateFrameDescription(colorFormat);
 
                 // カラーリーダーを開く
                 colorFrameReader = kinect.ColorFrameSource.OpenReader();
                 colorFrameReader.FrameArrived += colorFrameReader_FrameArrived;
 
                 // カラー用のビットマップを作成する
-                colorBitmap = new WriteableBitmap(
-                                    colorFrameDesc.Width, colorFrameDesc.Height,
-                                    96, 96, PixelFormats.Bgra32, null);
+                colorBitmap = new WriteableBitmap(colorFrameDesc.Width, colorFrameDesc.Height, 96, 96, PixelFormats.Bgra32, null);
                 colorStride = colorFrameDesc.Width * (int)colorFrameDesc.BytesPerPixel;
-                colorRect = new Int32Rect(0, 0,
-                                    colorFrameDesc.Width, colorFrameDesc.Height);
+                colorRect = new Int32Rect(0, 0, colorFrameDesc.Width, colorFrameDesc.Height);
                 colorBuffer = new byte[colorStride * colorFrameDesc.Height];
                 ImageColor.Source = colorBitmap;
 
@@ -120,8 +116,7 @@ namespace KinectForNUI
                 }
 
                 // BGRAデータを取得する
-                colorFrame.CopyConvertedFrameDataToArray(
-                                            colorBuffer, colorFormat);
+                colorFrame.CopyConvertedFrameDataToArray(colorBuffer, colorFormat);
             }
         }
 
@@ -146,24 +141,20 @@ namespace KinectForNUI
             for (int count = 0; count < BODY_COUNT; count++)
             {
 
-                VisualGestureBuilderFrameSource gestureFrameSource;
-                gestureFrameSource = new VisualGestureBuilderFrameSource(kinect, 0);
+                VisualGestureBuilderFrameSource gestureFrameSource = new VisualGestureBuilderFrameSource(kinect, 0);
                 gestureFrameReaders[count] = gestureFrameSource.OpenReader();
                 gestureFrameReaders[count].FrameArrived += gestureFrameReaders_FrameArrived;
 
             }
 
-            VisualGestureBuilderDatabase gestureDatabase;
-            gestureDatabase = new VisualGestureBuilderDatabase("NUITest.gbd");
+            VisualGestureBuilderDatabase gestureDatabase = new VisualGestureBuilderDatabase("NUITest.gbd");
 
-            uint gestureCount;
-            gestureCount = gestureDatabase.AvailableGesturesCount;
+            uint gestureCount = gestureDatabase.AvailableGesturesCount;
             gestures = gestureDatabase.AvailableGestures;
             for (int count = 0; count < BODY_COUNT; count++)
             {
 
-                VisualGestureBuilderFrameSource gestureFrameSource;
-                gestureFrameSource = gestureFrameReaders[count].VisualGestureBuilderFrameSource;
+                VisualGestureBuilderFrameSource gestureFrameSource = gestureFrameReaders[count].VisualGestureBuilderFrameSource;
                 gestureFrameSource.AddGestures(gestures);
                 foreach (var g in gestures)
                 {
@@ -187,8 +178,7 @@ namespace KinectForNUI
 
         void UpdateGestureFrame(VisualGestureBuilderFrame gestureFrame)
         {
-            bool tracked;
-            tracked = gestureFrame.IsTrackingIdValid;
+            bool tracked = gestureFrame.IsTrackingIdValid;
             if (tracked)
             {
                 foreach (var g in gestures)
@@ -201,15 +191,14 @@ namespace KinectForNUI
 
         void result(VisualGestureBuilderFrame gestureFrame, Gesture gesture)
         {
-            int count = GetIndexofGestureReader(gestureFrame);
-            GestureType gestureType;
-            gestureType = gesture.GestureType;
+            int count = GetIndexofGestureReader(gestureFrame);          // ジェスチャーを行っている人のBodyIndexを取得
+            GestureType gestureType = gesture.GestureType;              // ジェスチャータイプ(DiscreteかContinuous)を取得
             switch (gestureType)
             {
 
+                // 検出したジェスチャーがDiscrete(静的)の時
                 case GestureType.Discrete:
-                    DiscreteGestureResult dGestureResult;
-                    dGestureResult = gestureFrame.DiscreteGestureResults[gesture];
+                    DiscreteGestureResult dGestureResult = gestureFrame.DiscreteGestureResults[gesture];
 
                     bool detected;
                     detected = dGestureResult.Detected;
@@ -224,9 +213,9 @@ namespace KinectForNUI
                     GetTextBlock(count).Text = discrete;                    // WPFのTextBlockに表示
                     break;
 
+                // 検出したジェスチャーがContinuous(動的)の時
                 case GestureType.Continuous:
-                    ContinuousGestureResult cGestureResult;
-                    cGestureResult = gestureFrame.ContinuousGestureResults[gesture];
+                    ContinuousGestureResult cGestureResult = gestureFrame.ContinuousGestureResults[gesture];
 
                     float progress;
                     progress = cGestureResult.Progress;
@@ -241,6 +230,7 @@ namespace KinectForNUI
             }
         }
 
+        // 対応するBodyIndexのTextBlockのインデックスを取得
         TextBlock GetTextBlock(int index)
         {
 
@@ -268,17 +258,18 @@ namespace KinectForNUI
 
         }
 
+        // VGBで登録したジェスチャー名を取得
         string gesture2string(Gesture gesture)
         {
             return gesture.Name.Trim();
         }
 
+        // ジェスチャーを行っている人のBodyIndexを取得
         int GetIndexofGestureReader(VisualGestureBuilderFrame gestureFrame)
         {
             for (int index = 0; index < BODY_COUNT; index++)
             {
-                if (gestureFrame.TrackingId
-                    == gestureFrameReaders[index].VisualGestureBuilderFrameSource.TrackingId)
+                if (gestureFrame.TrackingId == gestureFrameReaders[index].VisualGestureBuilderFrameSource.TrackingId)
                 {
                     return index;
                 }
@@ -286,6 +277,7 @@ namespace KinectForNUI
             return -1;
         }
 
+        // BodyFramの更新
         void UpdateBodyFrame()
         {
             
@@ -293,8 +285,7 @@ namespace KinectForNUI
             {
 
                 // BodyFrameの取得
-                BodyFrame bodyFrame;
-                bodyFrame = bodyFrameReader.AcquireLatestFrame();
+                BodyFrame bodyFrame = bodyFrameReader.AcquireLatestFrame();
 
                 if (bodyFrame != null)
                 {
@@ -308,8 +299,7 @@ namespace KinectForNUI
                             continue;
                         }
                         ulong trackingId = body.TrackingId;
-                        VisualGestureBuilderFrameSource gestureFrameSource;
-                        gestureFrameSource = gestureFrameReaders[count].VisualGestureBuilderFrameSource;
+                        VisualGestureBuilderFrameSource gestureFrameSource = gestureFrameReaders[count].VisualGestureBuilderFrameSource;
                         gestureFrameSource.TrackingId = trackingId;
                     }
                     bodyFrame.Dispose();
@@ -319,8 +309,10 @@ namespace KinectForNUI
                         
         }
 
+        // windowの終了処理
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            // センサの終了処理
             if (kinect != null)
             {
                 kinect.Close();
