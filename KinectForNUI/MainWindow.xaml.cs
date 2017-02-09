@@ -41,6 +41,9 @@ namespace KinectForNUI
         int colorStride;
         Int32Rect colorRect;
 
+        // VGB
+        String gbdFile = "KENUI.gbd";
+
         public MainWindow()
         {
             InitializeComponent();
@@ -98,10 +101,11 @@ namespace KinectForNUI
 
         }
  
+        // colorFrameReaderの更新
         void colorFrameReader_FrameArrived(object sender, ColorFrameArrivedEventArgs e)
         {
-            UpdateColorFrame(e);
-            DrawColorFrame();
+            UpdateColorFrame(e);        // カラーフレームの更新
+            DrawColorFrame();           // 骨格情報を画面に描画
         }
 
         // カラーフレームの更新
@@ -120,13 +124,14 @@ namespace KinectForNUI
             }
         }
 
-        // 画面に描画
+        // 骨格情報を画面に描画
         private void DrawColorFrame()
         {
             // ビットマップにする
             colorBitmap.WritePixels(colorRect, colorBuffer, colorStride, 0);
         }
 
+        // bodyFrameReaderの更新
         void bodyFrameReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             UpdateBodyFrame();
@@ -147,7 +152,7 @@ namespace KinectForNUI
 
             }
 
-            VisualGestureBuilderDatabase gestureDatabase = new VisualGestureBuilderDatabase("NUITest.gbd");
+            VisualGestureBuilderDatabase gestureDatabase = new VisualGestureBuilderDatabase(gbdFile);
 
             uint gestureCount = gestureDatabase.AvailableGesturesCount;
             gestures = gestureDatabase.AvailableGestures;
@@ -165,6 +170,7 @@ namespace KinectForNUI
 
         }
 
+        // gestureFrameReadersの更新
         void gestureFrameReaders_FrameArrived(object sender, VisualGestureBuilderFrameArrivedEventArgs e)
         {
             VisualGestureBuilderFrame gestureFrame = e.FrameReference.AcquireFrame();
@@ -176,6 +182,7 @@ namespace KinectForNUI
             gestureFrame.Dispose();
         }
 
+        // GestureFrameの更新
         void UpdateGestureFrame(VisualGestureBuilderFrame gestureFrame)
         {
             bool tracked = gestureFrame.IsTrackingIdValid;
@@ -189,6 +196,7 @@ namespace KinectForNUI
             
         }
 
+        // 認識したジェスチャーをwindowに表示
         void result(VisualGestureBuilderFrame gestureFrame, Gesture gesture)
         {
             int count = GetIndexofGestureReader(gestureFrame);          // ジェスチャーを行っている人のBodyIndexを取得
@@ -334,6 +342,7 @@ namespace KinectForNUI
                     // 手の位置が追跡状態
                     if (joint.Value.TrackingState == TrackingState.Tracked)
                     {
+                        // 骨格を描画
                         DrawEllipse(joint.Value, 10, Brushes.Blue);
 
                         // 左手が追跡していたら、手の状態を表示する
@@ -397,7 +406,7 @@ namespace KinectForNUI
             }
         }
 
-        // 手の状態を示す楕円を描画
+        // 骨を描画
         private void DrawEllipse(Joint joint, int R, Brush brush)
         {
             var ellipse = new Ellipse()
